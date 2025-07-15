@@ -173,15 +173,46 @@ def main():
                             'generated_at': datetime.now().isoformat(),
                             'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
                         })
-                        
+
+                    # Generate persona with error handling
+                    try:
+                        with st.spinner("Generating persona with AI..."):
+                            # Generate persona
+                            generator = PersonaGenerator()
+                            persona = generator.generate_persona(user_data)
+
+                        if persona:
+                            # Display the generated persona with proper formatting
+                            st.markdown(persona['persona_text'])
+                            
+                            # Show metadata
+                            with st.expander("Analysis Metadata"):
+                                st.write(f"Generated using: {persona['metadata']['model_used']}")
+                                st.write(f"Generated at: {persona['metadata']['generated_at']}")
+                                st.write(f"Comments analyzed: {persona['metadata']['comments_analyzed']}")
+                                st.write(f"Posts analyzed: {persona['metadata']['posts_analyzed']}")
+
+                            # Save persona to file
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            filename = f"persona_{username}_{timestamp}.txt"
+                            filepath = os.path.join("output", filename)
+                            os.makedirs("output", exist_ok=True)
+                            
+                            with open(filepath, 'w', encoding='utf-8') as f:
+                                f.write(persona['persona_text'])
+                                f.write("\n\n")
+                                f.write("ANALYSIS METADATA\n")
+                                f.write(f"Generated using: {persona['metadata']['model_used']}\n")
+                                f.write(f"Generated at: {persona['metadata']['generated_at']}\n")
+                                f.write(f"Comments analyzed: {persona['metadata']['comments_analyzed']}\n")
+                                f.write(f"Posts analyzed: {persona['metadata']['posts_analyzed']}")
+
+                            st.success("Persona generated successfully!")
+
                     except Exception as e:
-                        st.error(f"Error fetching user data: {str(e)}")
-                        st.stop()
+                        st.error(f"Error generating persona: {str(e)}")
                 
-                with st.spinner("Generating persona with  AI..."):
-                    # Generate persona
-                    generator = PersonaGenerator()
-                    persona = generator.generate_persona(user_data)
+
 
                     # Display the generated persona with proper formatting
                     if persona:
