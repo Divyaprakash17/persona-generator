@@ -19,7 +19,7 @@ st.set_page_config(
 def get_api_keys():
     """Get API keys from Streamlit secrets"""
     try:
-        # Get secrets from the 'api' section first
+        # Get secrets from the 'api' section
         api_secrets = st.secrets.get('api', {})
         
         # Get individual secrets
@@ -28,16 +28,16 @@ def get_api_keys():
         REDDIT_CLIENT_SECRET = api_secrets.get('REDDIT_CLIENT_SECRET')
         REDDIT_USER_AGENT = api_secrets.get('REDDIT_USER_AGENT')
         
-        # Validate we have all required secrets
+        # If not found in 'api' section, try root level
         if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
-            # Try loading from root level as fallback
             GOOGLE_API_KEY = st.secrets.get('GOOGLE_API_KEY')
             REDDIT_CLIENT_ID = st.secrets.get('REDDIT_CLIENT_ID')
             REDDIT_CLIENT_SECRET = st.secrets.get('REDDIT_CLIENT_SECRET')
             REDDIT_USER_AGENT = st.secrets.get('REDDIT_USER_AGENT')
-            
-            if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
-                raise ValueError("Missing required API keys in secrets")
+        
+        # Final validation
+        if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
+            raise ValueError("Missing required API keys in secrets")
         
         # Return as dictionary
         return {
@@ -184,12 +184,17 @@ def main():
                         # Get API keys
                         api_keys = get_api_keys()
                         
+                        # Validate credentials before initialization
+                        if not all([api_keys['REDDIT_CLIENT_ID'], api_keys['REDDIT_CLIENT_SECRET'], api_keys['REDDIT_USER_AGENT']]):
+                            raise ValueError("Missing required Reddit API credentials")
+                        
                         # Initialize scraper with credentials from secrets
                         scraper = RedditScraper(
                             client_id=api_keys['REDDIT_CLIENT_ID'],
                             client_secret=api_keys['REDDIT_CLIENT_SECRET'],
                             user_agent=api_keys['REDDIT_USER_AGENT']
                         )
+                        
                         # Fetch user data with more comments and posts
                         user_data = scraper.get_user_data(
                             username=username,
