@@ -1,11 +1,9 @@
 import os
 import time
 import praw
-from dotenv import load_dotenv
 from typing import Dict, List, Any
 from tqdm import tqdm
 from datetime import datetime
-import streamlit as st
 
 class RedditScraper:
     def __init__(self, client_id: str, client_secret: str, user_agent: str):
