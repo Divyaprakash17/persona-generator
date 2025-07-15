@@ -1,56 +1,40 @@
 import os
 import time
 import praw
+from dotenv import load_dotenv
 from typing import Dict, List, Any
 from tqdm import tqdm
 from datetime import datetime
 
 class RedditScraper:
-    def __init__(self, client_id: str, client_secret: str, user_agent: str):
-        """Initialize the RedditScraper with provided credentials and rate limiting.
+    def __init__(self):
+        """Initialize the RedditScraper with environment variables and rate limiting."""
+        load_dotenv()
         
-        Args:
-            client_id: Reddit API client ID
-            client_secret: Reddit API client secret
-            user_agent: Reddit API user agent string
-        """
-        # Store credentials
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.user_agent = user_agent
+        # Get Reddit API credentials
+        self.client_id = os.getenv('REDDIT_CLIENT_ID')
+        self.client_secret = os.getenv('REDDIT_CLIENT_SECRET')
+        self.user_agent = os.getenv('REDDIT_USER_AGENT')
         
-        # Initialize PRAW Reddit instance
-        try:
-            # Create Reddit instance
-            self.reddit = praw.Reddit(
-                client_id=client_id,
-                client_secret=client_secret,
-                user_agent=user_agent,
-                # Add rate limiting settings
-                requestor_kwargs={
-                    'session': None,  # Let PRAW handle the session
-                    'timeout': 30,    # 30 second timeout
-                },
-                # Enable read-only mode (we don't need write access)
-                check_for_async=False,
-                # Add retry settings
-                retry_on_timeout=True,
-                retry_on_server_error=3
-            )
-            
-            # Store credentials after successful initialization
-            self.client_id = client_id
-            self.client_secret = client_secret
-            self.user_agent = user_agent
-            
-            # Test the connection
-            try:
-                self.reddit.user.me()  # This will fail if credentials are invalid
-            except Exception as e:
-                raise ValueError(f"Failed to authenticate with Reddit API: {str(e)}")
-            
-        except Exception as e:
-            raise ValueError(f"Failed to initialize Reddit API: {str(e)}")
+        if not all([self.client_id, self.client_secret, self.user_agent]):
+            raise ValueError("Missing required Reddit API credentials in environment variables")
+        
+        # Initialize PRAW Reddit instance with rate limiting
+        self.reddit = praw.Reddit(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            user_agent=self.user_agent,
+            # Add rate limiting settings
+            requestor_kwargs={
+                'session': None,  # Let PRAW handle the session
+                'timeout': 30,    # 30 second timeout
+            },
+            # Enable read-only mode (we don't need write access)
+            check_for_async=False,
+            # Add retry settings
+            retry_on_timeout=True,
+            retry_on_server_error=3
+        )
         
         # Add a small delay between requests
         import time
@@ -99,16 +83,16 @@ class RedditScraper:
                 _ = getattr(redditor, 'comment_karma', None)
                 if _ is None:
                     # If we can't access attributes, the user might not exist or is private
-                    raise ValueError(f"Unable to access user 'u/{username}'. The profile may not exist or is private.")
+                    raise Exception(f"Unable to access user 'u/{username}'. The profile may not exist or is private.")
             except Exception as e:
                 error_msg = str(e).lower()
                 if '404' in error_msg or 'not found' in error_msg:
-                    raise ValueError(f"User 'u/{username}' not found")
+                    raise Exception(f"User 'u/{username}' not found")
                 elif '403' in error_msg or 'forbidden' in error_msg:
-                    raise ValueError("Access forbidden. The user's profile might be private or you may be rate limited.")
+                    raise Exception("Access forbidden. The user's profile might be private or you may be rate limited.")
                 elif '401' in error_msg:
-                    raise ValueError("Authentication failed. Please check your Reddit API credentials.")
-                raise ValueError(f"Error accessing user profile: {str(e)}")
+                    raise Exception("Authentication failed. Please check your Reddit API credentials.")
+                raise Exception(f"Error accessing user profile: {str(e)}")
             
             # Get user profile information with safe attribute access
             user_info = {

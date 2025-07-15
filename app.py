@@ -1,53 +1,18 @@
 import os
-import sys
 import streamlit as st
+from dotenv import load_dotenv
 from scraper import RedditScraper
 from persona_generator import PersonaGenerator
 import json
 from datetime import datetime
+import os
 
-# Add the current directory to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-# Set page config first
+# Set page config
 st.set_page_config(
     page_title="Reddit User Persona Generator",
     page_icon="🧠",
     layout="centered"
 )
-
-def get_api_keys():
-    """Get API keys from Streamlit secrets"""
-    try:
-        # Get secrets from the 'api' section
-        api_secrets = st.secrets.get('api', {})
-        
-        # Get individual secrets
-        GOOGLE_API_KEY = api_secrets.get('GOOGLE_API_KEY')
-        REDDIT_CLIENT_ID = api_secrets.get('REDDIT_CLIENT_ID')
-        REDDIT_CLIENT_SECRET = api_secrets.get('REDDIT_CLIENT_SECRET')
-        REDDIT_USER_AGENT = api_secrets.get('REDDIT_USER_AGENT')
-        
-        # If not found in 'api' section, try root level
-        if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
-            GOOGLE_API_KEY = st.secrets.get('GOOGLE_API_KEY')
-            REDDIT_CLIENT_ID = st.secrets.get('REDDIT_CLIENT_ID')
-            REDDIT_CLIENT_SECRET = st.secrets.get('REDDIT_CLIENT_SECRET')
-            REDDIT_USER_AGENT = st.secrets.get('REDDIT_USER_AGENT')
-        
-        # Final validation
-        if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
-            raise ValueError("Missing required API keys in secrets")
-        
-        # Return as dictionary
-        return {
-            'GOOGLE_API_KEY': GOOGLE_API_KEY,
-            'REDDIT_CLIENT_ID': REDDIT_CLIENT_ID,
-            'REDDIT_CLIENT_SECRET': REDDIT_CLIENT_SECRET,
-            'REDDIT_USER_AGENT': REDDIT_USER_AGENT
-        }
-    except Exception as e:
-        raise ValueError(f"Error loading API keys: {str(e)}")
 
 def save_persona(persona_text: str, username: str) -> str:
     """
@@ -131,10 +96,13 @@ def save_persona(persona_text: str, username: str) -> str:
         return filename
         
     except Exception as e:
-        print(f"Error saving persona: {str(e)}")
+        st.error(f"Error saving persona: {str(e)}")
         return ""
 
 def main():
+    # Load environment variables
+    load_dotenv()
+    
     # Initialize session state
     if 'persona' not in st.session_state:
         st.session_state.persona = None
@@ -178,22 +146,11 @@ def main():
                     return
                 
                 st.info(f"Fetching data for user: u/{username}")
-                
-                with st.spinner("Fetching user data..."):
+                    
+                with st.spinner("Fetching Reddit data..."):
                     try:
-                        # Get API keys
-                        api_keys = get_api_keys()
-                        
-                        # Validate credentials before initialization
-                        if not all([api_keys['REDDIT_CLIENT_ID'], api_keys['REDDIT_CLIENT_SECRET'], api_keys['REDDIT_USER_AGENT']]):
-                            raise ValueError("Missing required Reddit API credentials")
-                        
-                        # Initialize scraper with credentials from secrets
-                        scraper = RedditScraper(
-                            client_id=api_keys['REDDIT_CLIENT_ID'],
-                            client_secret=api_keys['REDDIT_CLIENT_SECRET'],
-                            user_agent=api_keys['REDDIT_USER_AGENT']
-                        )
+                        # Initialize scraper with increased limits
+                        scraper = RedditScraper()
                         
                         # Fetch user data with more comments and posts
                         user_data = scraper.get_user_data(
@@ -202,64 +159,35 @@ def main():
                             post_limit=50       # Kept at 50 as posts are typically longer
                         )
                         
-                        # If we got data, ensure metadata exists
-                        if user_data:
-                            if 'metadata' not in user_data:
-                                user_data['metadata'] = {}
-                                user_data['metadata'].update({
-                                    'generated_at': datetime.now().isoformat(),
-                                    'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
-                                })
-                        else:
-                            raise ValueError("Failed to fetch user data")
+                        # Ensure metadata exists
+                        if 'metadata' not in user_data:
+                            user_data['metadata'] = {}
+                            
+                        # Update metadata with current generation info
+                        user_data['metadata'].update({
+                            'generated_at': datetime.now().isoformat(),
+                            'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
+                        })
                         
-                        # Generate persona with error handling
-                        try:
-                            with st.spinner("Generating persona with AI..."):
-                                # Generate persona
-                                generator = PersonaGenerator(
-                                    google_api_key=api_keys['GOOGLE_API_KEY']
-                                )
-                                persona_data = generator.generate_persona(user_data)
-                                
-                                if persona_data:
-                                    # Display the generated persona with proper formatting
-                                    st.markdown(persona_data['persona_text'])
-                                    
-                                    # Show metadata
-                                    with st.expander("Analysis Metadata"):
-                                        st.write(f"Generated using: {persona_data['metadata']['model_used']}")
-                                        st.write(f"Generated at: {persona_data['metadata']['generated_at']}")
-                                        st.write(f"Comments analyzed: {persona_data['metadata']['comments_analyzed']}")
-                                        st.write(f"Posts analyzed: {persona_data['metadata']['posts_analyzed']}")
-
-                                    # Save persona to file
-                                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                                    filename = f"persona_{username}_{timestamp}.txt"
-                                    filepath = os.path.join("output", filename)
-                                    os.makedirs("output", exist_ok=True)
-                                    
-                                    with open(filepath, 'w', encoding='utf-8') as f:
-                                        f.write(persona_data['persona_text'])
-                                        f.write("\n\n")
-                                        f.write("ANALYSIS METADATA\n")
-                                        f.write(f"Generated using: {persona_data['metadata']['model_used']}\n")
-                                        f.write(f"Generated at: {persona_data['metadata']['generated_at']}\n")
-                                        f.write(f"Comments analyzed: {persona_data['metadata']['comments_analyzed']}\n")
-                                        f.write(f"Posts analyzed: {persona_data['metadata']['posts_analyzed']}")
-
-                                    st.success("Persona generated successfully!")
-                                
-                        except Exception as e:
-                            st.error(f"Error generating persona: {str(e)}")
-                            return
-                        
-                    except ValueError as e:
-                        st.error(f"Error: {str(e)}")
-                        return
                     except Exception as e:
-                        st.error(f"Unexpected error: {str(e)}")
-                        return
+                        st.error(f"Error fetching user data: {str(e)}")
+                        st.stop()
+                
+                with st.spinner("Generating persona with  AI..."):
+                    # Generate persona
+                    generator = PersonaGenerator()
+                    persona = generator.generate_persona(user_data)
+
+                    # Display the generated persona with proper formatting
+                    if persona:
+                        st.markdown(persona['persona_text'])
+                        
+                        # Show metadata
+                        with st.expander("Analysis Metadata"):
+                            st.write(f"Generated using: {persona['metadata']['model_used']}")
+                            st.write(f"Generated at: {persona['metadata']['generated_at']}")
+                            st.write(f"Comments analyzed: {persona['metadata']['comments_analyzed']}")
+                            st.write(f"Posts analyzed: {persona['metadata']['posts_analyzed']}")
 
                         # Save persona to file
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
