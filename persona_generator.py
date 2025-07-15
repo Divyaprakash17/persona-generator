@@ -20,10 +20,10 @@ class PersonaGenerator:
             fallback_models: List of alternative models to try if primary fails
             max_retries: Maximum number of retries before failing
         """
-        # Get API key from Streamlit secrets
-        google_api_key = st.secrets.api.GOOGLE_API_KEY
+        # Get API key from environment
+        google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
-            raise ValueError("GOOGLE_API_KEY not found in secrets")
+            raise ValueError("GOOGLE_API_KEY not found in environment")
             
         genai.configure(api_key=google_api_key)
         self.model = genai.GenerativeModel(model)
