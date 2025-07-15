@@ -183,25 +183,27 @@ def main():
                             comment_limit=100,  # Increased from default 50
                             post_limit=50       # Kept at 50 as posts are typically longer
                         )
-                        # Ensure we got valid data
-                        if not user_data or not isinstance(user_data, dict):
+                        
+                        # If we got data, ensure metadata exists
+                        if user_data:
+                            if 'metadata' not in user_data:
+                                user_data['metadata'] = {}
+                                user_data['metadata'].update({
+                                    'generated_at': datetime.now().isoformat(),
+                                    'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
+                                })
+                            return user_data
+                        else:
                             raise ValueError("Failed to fetch user data")
-                        return user_data
                     except ValueError as e:
                         st.error(f"Error: {str(e)}")
-                        return None
+                        return
                     except Exception as e:
                         st.error(f"Unexpected error: {str(e)}")
-                        return None
-                        
-                    # Ensure metadata exists
-                    if 'metadata' not in user_data:
-                        user_data['metadata'] = {}
-                        user_data['metadata'].update({
-                            'generated_at': datetime.now().isoformat(),
-                            'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
-                        })
-
+                        return
+                else:
+                    st.error("Failed to fetch user data")
+                    return None
                     # Generate persona with error handling
                     try:
                         with st.spinner("Generating persona with AI..."):
