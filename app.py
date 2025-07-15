@@ -151,7 +151,7 @@ def main():
                     return
                 
                 st.info(f"Fetching data for user: u/{username}")
-                    
+                
                 with st.spinner("Fetching user data..."):
                     try:
                         # Initialize scraper with credentials from secrets
@@ -166,8 +166,14 @@ def main():
                             comment_limit=100,  # Increased from default 50
                             post_limit=50       # Kept at 50 as posts are typically longer
                         )
+                        # Ensure we got valid data
+                        if not user_data or not isinstance(user_data, dict):
+                            raise ValueError("Failed to fetch user data")
                     except ValueError as e:
-                        st.error(str(e))
+                        st.error(f"Error: {str(e)}")
+                        return
+                    except Exception as e:
+                        st.error(f"Unexpected error: {str(e)}")
                         return
                         
                     # Ensure metadata exists

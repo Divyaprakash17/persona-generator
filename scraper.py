@@ -23,21 +23,24 @@ class RedditScraper:
         self.user_agent = user_agent
         
         # Initialize PRAW Reddit instance with rate limiting
-        self.reddit = praw.Reddit(
-            client_id=client_id,
-            client_secret=client_secret,
-            user_agent=user_agent,
-            # Add rate limiting settings
-            requestor_kwargs={
-                'session': None,  # Let PRAW handle the session
-                'timeout': 30,    # 30 second timeout
-            },
-            # Enable read-only mode (we don't need write access)
-            check_for_async=False,
-            # Add retry settings
-            retry_on_timeout=True,
-            retry_on_server_error=3
-        )
+        try:
+            self.reddit = praw.Reddit(
+                client_id=client_id,
+                client_secret=client_secret,
+                user_agent=user_agent,
+                # Add rate limiting settings
+                requestor_kwargs={
+                    'session': None,  # Let PRAW handle the session
+                    'timeout': 30,    # 30 second timeout
+                },
+                # Enable read-only mode (we don't need write access)
+                check_for_async=False,
+                # Add retry settings
+                retry_on_timeout=True,
+                retry_on_server_error=3
+            )
+        except Exception as e:
+            raise ValueError(f"Failed to initialize Reddit API: {str(e)}")
         
         # Add a small delay between requests
         import time
