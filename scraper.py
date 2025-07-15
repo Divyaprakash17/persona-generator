@@ -14,10 +14,11 @@ class RedditScraper:
             client_secret: Reddit API client secret
             user_agent: Reddit API user agent string
         """
-        # Validate credentials
-        if not all([client_id, client_secret, user_agent]):
-            raise ValueError("Missing required Reddit API credentials")
-            
+        # Store credentials
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.user_agent = user_agent
+        
         # Initialize PRAW Reddit instance
         try:
             # Create Reddit instance
@@ -37,16 +38,16 @@ class RedditScraper:
                 retry_on_server_error=3
             )
             
+            # Store credentials after successful initialization
+            self.client_id = client_id
+            self.client_secret = client_secret
+            self.user_agent = user_agent
+            
             # Test the connection
             try:
                 self.reddit.user.me()  # This will fail if credentials are invalid
             except Exception as e:
                 raise ValueError(f"Failed to authenticate with Reddit API: {str(e)}")
-                
-            # If we got here, credentials are valid
-            self.client_id = client_id
-            self.client_secret = client_secret
-            self.user_agent = user_agent
             
         except Exception as e:
             raise ValueError(f"Failed to initialize Reddit API: {str(e)}")
