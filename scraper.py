@@ -88,16 +88,16 @@ class RedditScraper:
                 _ = getattr(redditor, 'comment_karma', None)
                 if _ is None:
                     # If we can't access attributes, the user might not exist or is private
-                    raise Exception(f"Unable to access user 'u/{username}'. The profile may not exist or is private.")
+                    raise ValueError(f"Unable to access user 'u/{username}'. The profile may not exist or is private.")
             except Exception as e:
                 error_msg = str(e).lower()
                 if '404' in error_msg or 'not found' in error_msg:
-                    raise Exception(f"User 'u/{username}' not found")
+                    raise ValueError(f"User 'u/{username}' not found")
                 elif '403' in error_msg or 'forbidden' in error_msg:
-                    raise Exception("Access forbidden. The user's profile might be private or you may be rate limited.")
+                    raise ValueError("Access forbidden. The user's profile might be private or you may be rate limited.")
                 elif '401' in error_msg:
-                    raise Exception("Authentication failed. Please check your Reddit API credentials.")
-                raise Exception(f"Error accessing user profile: {str(e)}")
+                    raise ValueError("Authentication failed. Please check your Reddit API credentials.")
+                raise ValueError(f"Error accessing user profile: {str(e)}")
             
             # Get user profile information with safe attribute access
             user_info = {

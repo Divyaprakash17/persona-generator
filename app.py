@@ -148,7 +148,7 @@ def main():
                 
                 st.info(f"Fetching data for user: u/{username}")
                     
-                with st.spinner("Fetching Reddit data..."):
+                with st.spinner("Fetching user data..."):
                     try:
                         # Initialize scraper with credentials
                         scraper = RedditScraper(
@@ -162,12 +162,13 @@ def main():
                             comment_limit=100,  # Increased from default 50
                             post_limit=50       # Kept at 50 as posts are typically longer
                         )
+                    except ValueError as e:
+                        st.error(str(e))
+                        return
                         
-                        # Ensure metadata exists
-                        if 'metadata' not in user_data:
-                            user_data['metadata'] = {}
-                            
-                        # Update metadata with current generation info
+                    # Ensure metadata exists
+                    if 'metadata' not in user_data:
+                        user_data['metadata'] = {}
                         user_data['metadata'].update({
                             'generated_at': datetime.now().isoformat(),
                             'model_used': 'gemini-1.5-flash'  # This will be updated by the generator
