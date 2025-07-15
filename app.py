@@ -1,9 +1,13 @@
 import os
+import sys
 import streamlit as st
 from scraper import RedditScraper
 from persona_generator import PersonaGenerator
 import json
 from datetime import datetime
+
+# Add the current directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Set page config first
 st.set_page_config(
