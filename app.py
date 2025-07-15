@@ -19,10 +19,19 @@ st.set_page_config(
 def get_api_keys():
     """Get API keys from Streamlit secrets"""
     try:
-        GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
-        REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
-        REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
-        REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
+        # Try to get secrets from the root level first
+        GOOGLE_API_KEY = st.secrets.get('GOOGLE_API_KEY')
+        REDDIT_CLIENT_ID = st.secrets.get('REDDIT_CLIENT_ID')
+        REDDIT_CLIENT_SECRET = st.secrets.get('REDDIT_CLIENT_SECRET')
+        REDDIT_USER_AGENT = st.secrets.get('REDDIT_USER_AGENT')
+        
+        # If not found, try from the 'api' section
+        if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
+            api_secrets = st.secrets.get('api', {})
+            GOOGLE_API_KEY = api_secrets.get('GOOGLE_API_KEY')
+            REDDIT_CLIENT_ID = api_secrets.get('REDDIT_CLIENT_ID')
+            REDDIT_CLIENT_SECRET = api_secrets.get('REDDIT_CLIENT_SECRET')
+            REDDIT_USER_AGENT = api_secrets.get('REDDIT_USER_AGENT')
         
         if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
             raise ValueError("Missing required API keys")
