@@ -5,19 +5,20 @@ from dotenv import load_dotenv
 from typing import Dict, List, Any
 from tqdm import tqdm
 from datetime import datetime
+import streamlit as st
 
 class RedditScraper:
     def __init__(self):
         """Initialize the RedditScraper with environment variables and rate limiting."""
         load_dotenv()
         
-        # Get Reddit API credentials
-        self.client_id = os.getenv('REDDIT_CLIENT_ID')
-        self.client_secret = os.getenv('REDDIT_CLIENT_SECRET')
-        self.user_agent = os.getenv('REDDIT_USER_AGENT')
+        # Get Reddit API credentials from Streamlit secrets
+        self.client_id = st.secrets.api.REDDIT_CLIENT_ID
+        self.client_secret = st.secrets.api.REDDIT_CLIENT_SECRET
+        self.user_agent = st.secrets.api.REDDIT_USER_AGENT
         
         if not all([self.client_id, self.client_secret, self.user_agent]):
-            raise ValueError("Missing required Reddit API credentials in environment variables")
+            raise ValueError("Missing required Reddit API credentials in Streamlit secrets")
         
         # Initialize PRAW Reddit instance with rate limiting
         self.reddit = praw.Reddit(

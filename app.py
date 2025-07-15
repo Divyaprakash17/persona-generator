@@ -1,11 +1,15 @@
 import os
 import streamlit as st
-from dotenv import load_dotenv
 from scraper import RedditScraper
 from persona_generator import PersonaGenerator
 import json
 from datetime import datetime
-import os
+
+# Load secrets from Streamlit
+GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
+REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
+REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
+REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
 
 # Set page config
 st.set_page_config(
