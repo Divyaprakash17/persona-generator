@@ -150,9 +150,13 @@ def main():
                     
                 with st.spinner("Fetching Reddit data..."):
                     try:
-                        # Initialize scraper with increased limits
-                        scraper = RedditScraper()
-                        
+                        # Initialize scraper with credentials and fetch user data
+                        scraper = RedditScraper(
+                            client_id=REDDIT_CLIENT_ID,
+                            client_secret=REDDIT_CLIENT_SECRET,
+                            user_agent=REDDIT_USER_AGENT
+                        )
+                        user_data = scraper.scrape_user(username)
                         # Fetch user data with more comments and posts
                         user_data = scraper.get_user_data(
                             username=username,

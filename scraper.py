@@ -8,23 +8,27 @@ from datetime import datetime
 import streamlit as st
 
 class RedditScraper:
-    def __init__(self):
-        """Initialize the RedditScraper with environment variables and rate limiting."""
-        load_dotenv()
+    def __init__(self, client_id: str, client_secret: str, user_agent: str):
+        """Initialize the RedditScraper with provided credentials and rate limiting.
         
-        # Get Reddit API credentials from Streamlit secrets
-        self.client_id = st.secrets.api.REDDIT_CLIENT_ID
-        self.client_secret = st.secrets.api.REDDIT_CLIENT_SECRET
-        self.user_agent = st.secrets.api.REDDIT_USER_AGENT
+        Args:
+            client_id: Reddit API client ID
+            client_secret: Reddit API client secret
+            user_agent: Reddit API user agent string
+        """
+        if not all([client_id, client_secret, user_agent]):
+            raise ValueError("Missing required Reddit API credentials")
         
-        if not all([self.client_id, self.client_secret, self.user_agent]):
-            raise ValueError("Missing required Reddit API credentials in Streamlit secrets")
+        # Store credentials
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.user_agent = user_agent
         
         # Initialize PRAW Reddit instance with rate limiting
         self.reddit = praw.Reddit(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            user_agent=self.user_agent,
+            client_id=client_id,
+            client_secret=client_secret,
+            user_agent=user_agent,
             # Add rate limiting settings
             requestor_kwargs={
                 'session': None,  # Let PRAW handle the session
