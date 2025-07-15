@@ -204,9 +204,12 @@ def main():
                     # Generate persona with error handling
                     try:
                         with st.spinner("Generating persona with AI..."):
+                            # Get API keys
+                            api_keys = get_api_keys()
+                            
                             # Generate persona
                             generator = PersonaGenerator(
-                                google_api_key=GOOGLE_API_KEY
+                                google_api_key=api_keys['GOOGLE_API_KEY']
                             )
                             persona_data = generator.generate_persona(user_data)
                             
