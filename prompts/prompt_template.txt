@@ -1,0 +1,48 @@
+Analyze the following Reddit user's activity and create a detailed persona. 
+Include specific examples from their posts and comments to support your analysis.
+
+{user_activity}
+
+Generate a persona with these sections:
+
+1. AGE: Estimated age range based on writing style, references, and account age.
+
+2. LOCATION: Any mentioned locations or timezone indicators.
+
+3. TRAITS: 3-5 key personality traits with evidence from their activity.
+
+4. BEHAVIOURS: 3-5 key behaviors with specific examples from their comments/posts.
+   Format each with a quote and link to the source.
+   Each behavior should be on a new line with proper indentation.
+
+5. FRUSTRATIONS: 2-3 things that frustrate this user based on their complaints or rants.
+   Each frustration should be on a new line with proper indentation.
+
+6. GOALS: 2-3 apparent goals or motivations from their activity.
+   Each goal should be on a new line with proper indentation.
+
+7. PERSONALITY: A brief personality summary (100-150 words).
+
+8. MOTIVATIONS: What drives this user to participate on Reddit?
+
+9. BEHAVIORS & HABITS: 3-5 key behaviors and habits with specific examples.
+
+10. FRUSTRATIONS: 2-3 things that frustrate this user.
+
+11. GOALS & NEEDS: 2-3 apparent goals or motivations from their activity.
+
+12. EVIDENCE: 3-5 key quotes that support the persona analysis.
+
+IMPORTANT FORMATTING INSTRUCTIONS:
+- Start each section header (🧠 PERSONALITY, 💡 MOTIVATIONS, etc.) on a new line
+- Add a blank line before and after each section
+- Maintain consistent indentation for subpoints
+- Use emojis as shown in the example
+- Keep each section distinct and clearly separated
+
+8. MOTIVATIONS: What drives this user to participate on Reddit?
+
+9. QUOTE: A representative quote that embodies this user's online persona.
+
+Format the response as a JSON object with these exact keys (all uppercase):
+AGE, LOCATION, TRAITS, BEHAVIOURS, FRUSTRATIONS, GOALS, PERSONALITY, MOTIVATIONS, QUOTE
