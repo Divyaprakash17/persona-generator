@@ -1,5 +1,7 @@
 # Reddit User Persona Generator
 
+[![Deployed App](https://img.shields.io/badge/Streamlit-Deployed-blue)](https://persona-generator-h5hlkznomy97gnubxn5oks.streamlit.app/)
+
 A tool that generates detailed user personas based on Reddit user activity using AI analysis. This application is deployed on Streamlit Cloud and uses Google's Gemini AI to analyze Reddit user data.
 
 ## Features
@@ -12,6 +14,10 @@ A tool that generates detailed user personas based on Reddit user activity using
 - Uses Google's Gemini AI for persona generation
 - Modern web interface using Streamlit
 - Automatic deployment on Streamlit Cloud
+
+## Live Demo
+
+Try the deployed application at: [https://persona-generator-h5hlkznomy97gnubxn5oks.streamlit.app/](https://persona-generator-h5hlkznomy97gnubxn5oks.streamlit.app/)
 
 ## Deployment Instructions
 
