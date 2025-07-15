@@ -104,9 +104,6 @@ def save_persona(persona_text: str, username: str) -> str:
         return ""
 
 def main():
-    # Load environment variables
-    load_dotenv()
-    
     # Initialize session state
     if 'persona' not in st.session_state:
         st.session_state.persona = None
