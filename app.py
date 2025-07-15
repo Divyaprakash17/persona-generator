@@ -179,7 +179,7 @@ def main():
                         with st.spinner("Generating persona with AI..."):
                             # Generate persona
                             generator = PersonaGenerator(
-                                GOOGLE_API_KEY=GOOGLE_API_KEY
+                                google_api_key=GOOGLE_API_KEY
                             )
                             persona_data = generator.generate_persona(user_data)
                             

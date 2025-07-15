@@ -11,7 +11,8 @@ class PersonaGenerator:
     def __init__(self, 
                  model: str = "gemini-1.5-flash",
                  fallback_models: List[str] = ["gemini-1.5-flash"],
-                 max_retries: int = 3):
+                 max_retries: int = 3,
+                 google_api_key: str = None):
         """
         Initialize the PersonaGenerator with Google's Gemini.
         
@@ -19,11 +20,12 @@ class PersonaGenerator:
             model: Primary model to use
             fallback_models: List of alternative models to try if primary fails
             max_retries: Maximum number of retries before failing
+            google_api_key: Optional API key to use instead of environment variable
         """
-        # Get API key from environment
-        google_api_key = os.getenv('GOOGLE_API_KEY')
+        # Get API key from parameter or environment
+        google_api_key = google_api_key or os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
-            raise ValueError("GOOGLE_API_KEY not found in environment")
+            raise ValueError("GOOGLE_API_KEY not found")
             
         genai.configure(api_key=google_api_key)
         self.model = genai.GenerativeModel(model)
