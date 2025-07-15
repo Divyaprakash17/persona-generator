@@ -5,18 +5,18 @@ from persona_generator import PersonaGenerator
 import json
 from datetime import datetime
 
-# Load secrets from Streamlit
-GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
-REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
-REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
-REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
-
-# Set page config
+# Set page config first
 st.set_page_config(
     page_title="Reddit User Persona Generator",
     page_icon="🧠",
     layout="centered"
 )
+
+# Load secrets from Streamlit
+GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
+REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
+REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
+REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
 
 def save_persona(persona_text: str, username: str) -> str:
     """
