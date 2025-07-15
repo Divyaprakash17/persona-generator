@@ -16,15 +16,25 @@ st.set_page_config(
     layout="centered"
 )
 
-# Get API keys from Streamlit secrets
-GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
-REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
-REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
-REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
-
-if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
-    st.error("Please add all required API keys to your Streamlit secrets")
-    st.stop()
+def get_api_keys():
+    """Get API keys from Streamlit secrets"""
+    try:
+        GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
+        REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
+        REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
+        REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
+        
+        if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
+            raise ValueError("Missing required API keys")
+            
+        return {
+            'GOOGLE_API_KEY': GOOGLE_API_KEY,
+            'REDDIT_CLIENT_ID': REDDIT_CLIENT_ID,
+            'REDDIT_CLIENT_SECRET': REDDIT_CLIENT_SECRET,
+            'REDDIT_USER_AGENT': REDDIT_USER_AGENT
+        }
+    except Exception as e:
+        raise ValueError(f"Error loading API keys: {str(e)}")
 
 def save_persona(persona_text: str, username: str) -> str:
     """
@@ -158,11 +168,14 @@ def main():
                 
                 with st.spinner("Fetching user data..."):
                     try:
+                        # Get API keys
+                        api_keys = get_api_keys()
+                        
                         # Initialize scraper with credentials from secrets
                         scraper = RedditScraper(
-                            client_id=REDDIT_CLIENT_ID,
-                            client_secret=REDDIT_CLIENT_SECRET,
-                            user_agent=REDDIT_USER_AGENT
+                            client_id=api_keys['REDDIT_CLIENT_ID'],
+                            client_secret=api_keys['REDDIT_CLIENT_SECRET'],
+                            user_agent=api_keys['REDDIT_USER_AGENT']
                         )
                         # Fetch user data with more comments and posts
                         user_data = scraper.get_user_data(
