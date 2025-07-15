@@ -5,18 +5,22 @@ from persona_generator import PersonaGenerator
 import json
 from datetime import datetime
 
+# Get API keys from Streamlit secrets
+GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
+REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
+REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
+REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
+
+if not all([GOOGLE_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
+    st.error("Please add all required API keys to your Streamlit secrets")
+    st.stop()
+
 # Set page config first
 st.set_page_config(
     page_title="Reddit User Persona Generator",
     page_icon="🧠",
     layout="centered"
 )
-
-# Load secrets from Streamlit
-GOOGLE_API_KEY = st.secrets.api.GOOGLE_API_KEY
-REDDIT_CLIENT_ID = st.secrets.api.REDDIT_CLIENT_ID
-REDDIT_CLIENT_SECRET = st.secrets.api.REDDIT_CLIENT_SECRET
-REDDIT_USER_AGENT = st.secrets.api.REDDIT_USER_AGENT
 
 def save_persona(persona_text: str, username: str) -> str:
     """
@@ -150,7 +154,7 @@ def main():
                     
                 with st.spinner("Fetching user data..."):
                     try:
-                        # Initialize scraper with credentials
+                        # Initialize scraper with credentials from secrets
                         scraper = RedditScraper(
                             client_id=REDDIT_CLIENT_ID,
                             client_secret=REDDIT_CLIENT_SECRET,
