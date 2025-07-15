@@ -186,12 +186,13 @@ def main():
                         # Ensure we got valid data
                         if not user_data or not isinstance(user_data, dict):
                             raise ValueError("Failed to fetch user data")
+                        return user_data
                     except ValueError as e:
                         st.error(f"Error: {str(e)}")
-                        return
+                        return None
                     except Exception as e:
                         st.error(f"Unexpected error: {str(e)}")
-                        return
+                        return None
                         
                     # Ensure metadata exists
                     if 'metadata' not in user_data:
