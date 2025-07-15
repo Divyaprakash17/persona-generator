@@ -100,7 +100,7 @@ def save_persona(persona_text: str, username: str) -> str:
         return filename
         
     except Exception as e:
-        st.error(f"Error saving persona: {str(e)}")
+        print(f"Error saving persona: {str(e)}")
         return ""
 
 def main():
